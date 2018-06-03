@@ -1,10 +1,10 @@
+"""Wine Jam 2018 @kenners"""
 import cocos
 
 class Start(cocos.layer.Layer):
-    def __init__(self):
-        super(Start, self).__init__()
-
+    """Starter layer"""
     def create_label(self, text, xpos, ypos):
+        """Create a label on this layer."""
         label = cocos.text.Label(
             text,
             font_name='Times New Roman',
@@ -15,6 +15,7 @@ class Start(cocos.layer.Layer):
         self.add(label)
 
 def main():
+    """Main entry point."""
     # Creates the window
     cocos.director.director.init()
 
