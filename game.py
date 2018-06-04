@@ -1,5 +1,6 @@
 """Wine Jam 2018 @kenners"""
 import cocos
+import pyglet
 from cocos.actions import Delay, Repeat, Reverse, ScaleBy
 
 class Start(cocos.layer.ColorLayer):
@@ -7,8 +8,10 @@ class Start(cocos.layer.ColorLayer):
     """Our hero"""
     hero = None
 
-    """Starter layer"""
-    def create_label(self, text, xpos, ypos):
+    """Event handler"""
+    is_event_handler = True
+
+    def create_label(self, text, xpos, ypos, hero=False):
         """Create a label on this layer."""
         label = cocos.text.Label(
             text,
@@ -17,6 +20,8 @@ class Start(cocos.layer.ColorLayer):
             anchor_x='center', anchor_y='center'
         )
         label.position = xpos, ypos
+        if hero:
+            self.hero = label
         self.add(label)
 
     def create_sprite(self, asset_path, coords, scale=1, z_layer=1):
@@ -26,6 +31,45 @@ class Start(cocos.layer.ColorLayer):
         sprite.scale = scale
         self.hero = sprite
         self.add(sprite, z=z_layer)
+
+class Keys(cocos.layer.Layer):
+
+    """Our hero"""
+    hero = None
+
+    """Event handler"""
+    is_event_handler = True
+
+    """Keys pressed"""
+    keys_pressed = set()
+
+    def create_label(self, text, xpos, ypos, hero=False):
+        """Create a label on this layer."""
+        label = cocos.text.Label(
+            text,
+            font_name='Times New Roman',
+            font_size=32,
+            anchor_x='center', anchor_y='center'
+        )
+        label.position = xpos, ypos
+        if hero:
+            self.hero = label
+        self.add(label)
+
+    def create_sprite(self, asset_path, coords, scale=1, z_layer=1):
+        """Create a sprite on this layer."""
+        sprite = cocos.sprite.Sprite(asset_path)
+        sprite.position = coords
+        sprite.scale = scale
+        self.hero = sprite
+        self.add(sprite, z=z_layer)
+
+    def on_key_press(self, key, _):
+        """Event handler"""
+        self.keys_pressed.add(key)
+        key_names = [pyglet.window.key.symbol_string(k)
+                     for k in self.keys_pressed]
+        self.hero.element.text = 'Keys: {}'.format(key_names)
 
 
 def main():
@@ -41,8 +85,11 @@ def main():
     bounce = ScaleBy(2, duration=1)
     l_start.hero.do(Delay(2) + Repeat(bounce + Reverse(bounce)))
 
+    l_keys = Keys()
+    l_keys.create_label("Waiting...", 200, 100, hero=True)
+
     # Creates a scene with the layer on it
-    main_scene = cocos.scene.Scene(l_start)
+    main_scene = cocos.scene.Scene(l_start, l_keys)
 
     # Renders the scene
     cocos.director.director.run(main_scene)
